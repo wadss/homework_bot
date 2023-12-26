@@ -27,7 +27,7 @@ HOMEWORK_VERDICTS = {
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
 
-logging.basicConfig( 
+logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -44,7 +44,7 @@ def check_tokens():
             logger.critical(f'Отсутствует токен: {missing_token}')
             raise exceptions.EmptyToken(
                 f'Отсутствует токен: {missing_token}'
-                )
+            )
 
 
 def send_message(bot, message):
@@ -66,7 +66,7 @@ def get_api_answer(timestamp):
         raise ConnectionError(
             f'Запрос к {ENDPOINT} с параметрами {timestamp} '
             f'провалился с ошибкой {error}'
-            )
+        )
     if response.status_code != HTTPStatus.OK:
         raise ValueError(f'Ошибка ответа API: {response.reason}')
     return response.json()
@@ -95,7 +95,7 @@ def parse_status(homework):
         status = homework['status']
         raise ValueError(
             f'Нечитаемый статус домашнего задания {status}'
-            )
+        )
     if 'homework_name' not in homework:
         raise KeyError('Отсутствует ключ homework_name в ответе API')
     homework_name = homework['homework_name']
