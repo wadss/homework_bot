@@ -1,0 +1,2 @@
+class EmptyToken(Exception):
+    pass 
