@@ -58,8 +58,7 @@ def send_message(bot, message):
 
 def get_api_answer(timestamp):
     """Проверяем статус ответа АПИ."""
-    from_date = {}
-    from_date['from_date'] = timestamp
+    from_date = {'from_date': timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=from_date)
     except requests.exceptions.RequestException as error:
