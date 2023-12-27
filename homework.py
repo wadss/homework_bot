@@ -27,20 +27,18 @@ HOMEWORK_VERDICTS = {
     'rejected': 'Работа проверена: у ревьюера есть замечания.'
 }
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 stdout_handler = logging.StreamHandler(sys.stdout)
 logger.addHandler(stdout_handler)
 
 
 def check_tokens():
     """Проверяем наличие всех токенов."""
-    source = ("PRACTICUM_TOKEN", "TELEGRAM_TOKEN", "TELEGRAM_CHAT_ID")
+    source = ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID')
     for token in source:
+        missing_token = ', '.join(token)
         if not globals()[token]:
-            missing_token = ', '.join(token)
             logger.critical(f'Отсутствует токен: {missing_token}')
             raise exceptions.EmptyToken(
                 f'Отсутствует токен: {missing_token}'
@@ -67,19 +65,22 @@ def get_api_answer(timestamp):
             f'провалился с ошибкой {error}'
         )
     if response.status_code != HTTPStatus.OK:
-        raise ValueError(f'Ошибка ответа API: {response.reason}')
+        raise ValueError(f'Ошибка ответа API. Код: {response.status_code},'
+                         f' причина: {response.reason}')
     return response.json()
 
 
 def check_response(response):
     """Проверяем что в ответ пришли данные ожидаемого вида."""
     logger.info('Начало проверки запроса к API')
-    if type(response) is not dict:
-        raise TypeError(f'Неверный тип ответа API {type(response)}')
+    if not isinstance(response, dict):
+        raise TypeError(f'Неверный тип ответа API {type(response)}, '
+                        'ожидается: dict')
     if 'homeworks' not in response:
         raise KeyError('Отсутствует ключ homeworks в ответе API')
-    if type(response.get('homeworks')) is not list:
-        raise TypeError('Неверный тип ответа API')
+    if not isinstance(response.get('homeworks'), list):
+        raise TypeError(f'Неверный тип ответа API '
+                        f'{type(response.get("homeworks"))}. Ожидается: list')
     if response.get('current_date') is None:
         raise KeyError('Отсутствует ключ current_date в ответе API')
     logger.info('Проверка успешно пройдена')
@@ -88,7 +89,7 @@ def check_response(response):
 
 def parse_status(homework):
     """Проверяем статус проверки и результат ревью."""
-    if homework['status'] is None:
+    if 'status' not in homework:
         raise KeyError('Отсутствует ключ status в ответе API')
     if homework['status'] not in HOMEWORK_VERDICTS:
         status = homework['status']
