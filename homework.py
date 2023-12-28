@@ -30,19 +30,26 @@ HOMEWORK_VERDICTS = {
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 stdout_handler = logging.StreamHandler(sys.stdout)
+strfmt = '[%(asctime)s] [%(name)s] [%(levelname)s] > %(message)s'
+datefmt = '%Y-%m-%d %H:%M:%S'
+formatter = logging.Formatter(fmt=strfmt, datefmt=datefmt)
+stdout_handler.setFormatter(formatter)
 logger.addHandler(stdout_handler)
 
 
 def check_tokens():
     """Проверяем наличие всех токенов."""
+    missing_token_list = []
     source = ('PRACTICUM_TOKEN', 'TELEGRAM_TOKEN', 'TELEGRAM_CHAT_ID')
     for token in source:
-        missing_token = ', '.join(token)
         if not globals()[token]:
-            logger.critical(f'Отсутствует токен: {missing_token}')
-            raise exceptions.EmptyToken(
-                f'Отсутствует токен: {missing_token}'
-            )
+            missing_token_list.append(token)
+    if missing_token_list:
+        missing_token = ', '.join(missing_token_list)
+        logger.critical(f'Отсутствует токен: {missing_token}')
+        raise exceptions.EmptyToken(
+            f'Отсутствует токен: {missing_token}'
+        )
 
 
 def send_message(bot, message):
